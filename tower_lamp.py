@@ -7,9 +7,9 @@ import time
 import serial
 
 
-class TowerLamp:
+class TowerLamp(object):
     """Tower Lamp class implementation."""
-    
+
     CMD_IN_SIGNAL = [0x02, 0x52, 0x03]
     CMD_OUT_SIGNAL = [0x02, 0x53, 0x03]
 
@@ -42,7 +42,7 @@ class TowerLamp:
 
     def __init__(self, port_path):
         """Towerlamp class constructor.
-        
+
         Arguments:
             port_path {str} -- serial port path on system
         """
@@ -56,48 +56,64 @@ class TowerLamp:
 
         self.port.flushInput()
 
+        self.turn_off_all_relay()
+
     def _run_cmd(self, cmd):
         self.port.write(cmd)
         time.sleep(0.05)
 
-    def toggle_relay(relay, on=True):
+    def toggle_relay(self, relay, on=True):
         """Turn On/Off specific relay.
-        
+
         Arguments:
             relay {int} -- relay number (1 ~ 4)
-        
+
         Keyword Arguments:
             on {bool} -- turn On or turn Off relay flag (default: {True})
-        
+
         Returns:
             str -- show result sent by serial port
 
         """
-        if relay == RELAY_1:
+        if relay == TowerLamp.RELAY_1:
             if on:
-                cmd = CMD_OUT_RELAY_OP_3_O_R1_ON
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R1_ON
+                self.is_relay_1_on = True
             else:
-                cmd = CMD_OUT_RELAY_OP_3_O_R1_OFF
-        elif relay == RELAY_2:
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R1_OFF
+                self.is_relay_1_on = False
+        elif relay == TowerLamp.RELAY_2:
             if on:
-                cmd = CMD_OUT_RELAY_OP_3_O_R2_ON
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R2_ON
+                self.is_relay_2_on = True
             else:
-                cmd = CMD_OUT_RELAY_OP_3_O_R2_OFF
-        elif relay == RELAY_3:
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R2_OFF
+                self.is_relay_2_on = False
+        elif relay == TowerLamp.RELAY_3:
             if on:
-                cmd = CMD_OUT_RELAY_OP_3_O_R3_ON
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R3_ON
+                self.is_relay_3_on = True
             else:
-                cmd = CMD_OUT_RELAY_OP_3_O_R3_OFF
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R3_OFF
+                self.is_relay_3_on = False
         else:
             if on:
-                cmd = CMD_OUT_RELAY_OP_3_O_R4_ON
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R4_ON
+                self.is_relay_4_on = True
             else:
-                cmd = CMD_OUT_RELAY_OP_3_O_R4_OFF
+                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R4_OFF
+                self.is_relay_4_on = False
 
-        length = self._run_cmd(cmd)
+        self._run_cmd(cmd)
 
-        return self.port.read(length)
+    def turn_off_all_relay(self):
+        """Turn off all realy."""
+        self._run_cmd(TowerLamp.CMD_OUT_RELAY_OP_1_W_R1)
+        self.is_relay_1_on = False
+        self.is_relay_2_on = False
+        self.is_relay_3_on = False
+        self.is_relay_4_on = False
 
-    def close_connection():
+    def close_connection(self):
         """Close created serial connection."""
         self.port.close()
