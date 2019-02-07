@@ -45,18 +45,23 @@ class ControlApp(QDialog):
         self.init_tower_lamp()
 
     def init_tower_lamp(self):
+        """Start serial communication."""
         self.tl = TowerLamp('/dev/ttyUSB0')
 
     def toggle_red_light(self):
+        """Toggle red light."""
         self.tl.toggle_relay(TowerLamp.RELAY_1, not self.tl.is_relay_1_on)
 
     def toggle_yellow_light(self):
+        """Toggle yellow light."""
         self.tl.toggle_relay(TowerLamp.RELAY_2, not self.tl.is_relay_2_on)
 
     def toggle_green_light(self):
+        """Toggle green light."""
         self.tl.toggle_relay(TowerLamp.RELAY_3, not self.tl.is_relay_3_on)
 
     def toggle_buzzer(self):
+        """Toggle buzzer."""
         self.tl.toggle_relay(TowerLamp.RELAY_4, not self.tl.is_relay_4_on)
 
 
