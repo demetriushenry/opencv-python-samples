@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+opencv-python = "*"
+"pyside2" = "*"
+pyserial = "*"
+imutils = "*"
+scikit-image = "*"
+sphinx = "*"
+
+[dev-packages]
+pydocstyle = "*"
+
+[requires]
+python_version = "3.6"

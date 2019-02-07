@@ -90,6 +90,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# pipenv
+Pipfile.lock
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -104,8 +107,5 @@ venv.bak/
 .mypy_cache/
 
 # vscode
+.vscode/
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
