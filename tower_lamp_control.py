@@ -1,8 +1,10 @@
 """Control tower lamp module."""
+import subprocess
 import sys
 
-from PySide2.QtWidgets import (QApplication, QDialog, QLineEdit, QPushButton,
-                               QVBoxLayout)
+from PySide2.QtCore import QRect, QPoint
+from PySide2.QtWidgets import (QApplication, QDesktopWidget, QDialog,
+                               QLineEdit, QPushButton, QVBoxLayout)
 
 from tower_lamp import TowerLamp
 
@@ -42,6 +44,11 @@ class ControlApp(QDialog):
         self.green_lamp.clicked.connect(self.toggle_green_light)
         self.buzzer.clicked.connect(self.toggle_buzzer)
 
+        w, h = get_screen_resolution()
+        self.setGeometry(0, 0, w // 6, h // 6)
+        
+        self._move_to_center()
+
         self.init_tower_lamp()
 
     def init_tower_lamp(self):
@@ -63,6 +70,24 @@ class ControlApp(QDialog):
     def toggle_buzzer(self):
         """Toggle buzzer."""
         self.tl.toggle_relay(TowerLamp.RELAY_4, not self.tl.is_relay_4_on)
+
+    def _move_to_center(self):
+        rect = self.frameGeometry()
+        center = QDesktopWidget().availableGeometry().center()
+        rect.moveCenter(center)
+        self.move(rect.topLeft())
+
+
+def get_screen_resolution():
+    output = subprocess.Popen(
+        'xrandr | grep "\*" | cut -d" " -f4',
+        shell=True,
+        stdout=subprocess.PIPE
+    ).communicate()[0]
+
+    resolution = output.split()[0].split(b'x')
+
+    return int(resolution[0]), int(resolution[1])
 
 
 def main():
