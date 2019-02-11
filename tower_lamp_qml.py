@@ -8,5 +8,6 @@ view = QQuickView()
 url = QUrl("tl.qml")
 
 view.setSource(url)
+view.setTitle("Tower lamp status")
 view.show()
 app.exec_()
