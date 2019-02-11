@@ -1,8 +1,8 @@
-import QtQuick 2.0
+import QtQuick 2.12
 
 Rectangle {
     id: page
-    width: 400; height: 500
+    width: 350; height: 450
     color: "gray"
 
     Text {
@@ -16,12 +16,12 @@ Rectangle {
 
     Grid {
         id: tlColors
+        y: 110
         anchors.horizontalCenter: page.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
         rows: 3; columns: 1; spacing: 3
 
-        Cell { cellColor: "red"; onClicked: tlText.color = cellColor}
-        Cell { cellColor: "yellow"; onClicked: tlText.color = cellColor}
-        Cell { cellColor: "green"; onClicked: tlText.color = cellColor}
+        Cell { cellColor: "red"}
+        Cell { cellColor: "yellow"}
+        Cell { cellColor: "green"}
     }
 }
