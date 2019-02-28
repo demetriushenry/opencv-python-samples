@@ -1,8 +1,21 @@
 import argparse
+import subprocess
 import sys
 
 import cv2
 import numpy as np
+
+
+def get_screen_resolution():
+    output = subprocess.Popen(
+        'xrandr | grep "\*" | cut -d" " -f4',
+        shell=True,
+        stdout=subprocess.PIPE
+    ).communicate()[0]
+
+    resolution = output.split()[0].split(b'x')
+
+    return int(resolution[0]), int(resolution[1])
 
 
 def detect_by_range(img_path: str, img_template: str):
@@ -38,15 +51,23 @@ def detect_by_range_2(img_path: str, img_template: str):
 
     mask = cv2.inRange(img, lower, upper)
 
-    opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
     cv2.imshow('Mask', opening)
 
     img = get_rectangles(cv2.cvtColor(opening, cv2.COLOR_GRAY2BGR), img)
 
-    x, y, w, h = cv2.boundingRect(opening)
+    # x, y, w, h = cv2.boundingRect(opening)
 
     # cv2.rectangle(img, (x, y), (x+w, y + h), (0, 255, 0), 3)
     # cv2.circle(img, (x+w//2, y+h//2), 5, (0, 0, 255), -1)
+
+    res_w, res_h = get_screen_resolution()
+
+    ratio = 1.8
+
+    cv2.namedWindow('Range Detect 2', cv2.WINDOW_KEEPRATIO)
+    cv2.resizeWindow('Range Detect 2', int(
+        res_w // ratio), int(res_h // ratio))
 
     cv2.imshow('Range Detect 2', img)
     cv2.waitKey(0)
@@ -85,7 +106,7 @@ def get_rectangles(img_mat, img_dest):
 
     threshold = cv2.adaptiveThreshold(blur, 255, 1, 1, 11, 2)
 
-    _, countours, _ = cv2.findContours(
+    countours, _ = cv2.findContours(
         threshold,
         cv2.RETR_LIST,
         cv2.CHAIN_APPROX_SIMPLE

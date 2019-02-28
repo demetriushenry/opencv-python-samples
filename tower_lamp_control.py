@@ -97,7 +97,10 @@ def main():
     form = ControlApp()
     form.show()
 
-    app.exec_()
+    res = app.exec_()
+
+    del form
+    sys.exit(res)
 
 
 if __name__ == "__main__":
