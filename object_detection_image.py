@@ -19,7 +19,7 @@ def get_screen_resolution():
 
 def main():
     obj_cascade = cv.CascadeClassifier('data/lbpcascade_brown_tape.xml')
-    img_path = '20190122_170439.jpg'
+    img_path = 'images/20190122_170439.jpg'
 
     img = cv.imread(img_path)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -31,7 +31,7 @@ def main():
     for index, (x, y, w, h) in enumerate(objs):
         color = (cc(), cc(), cc())
         cv.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 3)
-        
+
         label = 'brown tape - {}'.format(index + 1)
 
         (label_w, label_h), baseline = cv.getTextSize(
