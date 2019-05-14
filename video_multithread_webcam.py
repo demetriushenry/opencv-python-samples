@@ -27,7 +27,7 @@ def detect(frame, model_face, model_eyes):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.equalizeHist(gray)
 
-        faces = cascade_face.detectMultiScale(gray, 2.0, 5)
+        faces = cascade_face.detectMultiScale(gray, minNeighbors=10)
         for (x, y, w, h) in faces:
             cv2.rectangle(
                 frame,
@@ -39,11 +39,13 @@ def detect(frame, model_face, model_eyes):
 
             face_roi = gray[y:y+h, x:x+w]
             eyes = cascade_eyes.detectMultiScale(face_roi)
-            if len(eyes) == 2:
-                for (x2, y2, w2, h2) in eyes:
-                    eye_center = (x + x2 + w2//2, y + y2 + h2//2)
-                    radius = int(round((w2 + h2)*0.25))
-                    frame = cv2.circle(frame, eye_center, radius, 255, 2)
+            # if len(eyes) == 2:
+            for (x2, y2, w2, h2) in eyes:
+                eye_center = (x + x2 + w2//2, y + y2 + h2//2)
+                radius = int(round((w2 + h2)*0.25))
+                frame = cv2.circle(frame, eye_center, radius, 255, 2)
+
+        frame = cv2.flip(frame, 1)
 
         return frame
 
