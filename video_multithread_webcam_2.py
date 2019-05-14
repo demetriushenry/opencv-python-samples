@@ -1,10 +1,9 @@
 import time
 from datetime import datetime
+from queue import Queue
 from threading import Thread
 
 import cv2
-import imutils
-import numpy as np
 from imutils.video import FPS, WebcamVideoStream
 
 
@@ -18,34 +17,6 @@ def put_iteractions_counting(frame, iterations):
         (255, 255, 255)
     )
     return frame
-
-
-def detect(frame, model_face, model_eyes):
-        cascade_face = cv2.CascadeClassifier(model_face)
-        cascade_eyes = cv2.CascadeClassifier(model_eyes)
-
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.equalizeHist(gray)
-
-        faces = cascade_face.detectMultiScale(gray, 2.0, 5)
-        for (x, y, w, h) in faces:
-            cv2.rectangle(
-                frame,
-                (x, y),
-                (x + w, y + h),
-                (255, 0, 255),
-                2
-            )
-
-            face_roi = gray[y:y+h, x:x+w]
-            eyes = cascade_eyes.detectMultiScale(face_roi)
-            if len(eyes) == 2:
-                for (x2, y2, w2, h2) in eyes:
-                    eye_center = (x + x2 + w2//2, y + y2 + h2//2)
-                    radius = int(round((w2 + h2)*0.25))
-                    frame = cv2.circle(frame, eye_center, radius, 255, 2)
-
-        return frame
 
 
 class CountFrame:
@@ -83,12 +54,9 @@ class VideoShow:
 
     def show(self):
         while not self.stopped:
-            frame = detect(
-                self.frame,
-                'data/haarcascade_frontalface_default.xml',
-                'data/haarcascade_eye.xml',
-            )
-            cv2.imshow('Video', frame)
+            if self.frame is not None:
+                cv2.imshow('Video', self.frame)
+                self.frame = None
             if cv2.waitKey(1) == ord('q'):
                 self.stopped = True
 
@@ -99,8 +67,10 @@ class ObjectDetector:
         self.model_face = model_face
         self.model_eyes = model_eyes
         self._frame = frame
+        self.q = Queue(maxsize=128)
         self.stopped = False
         self.detect_eyes = det_eyes
+        self.change_frame = True
 
     def start(self):
         t = Thread(target=self.detect, args=())
@@ -120,36 +90,59 @@ class ObjectDetector:
             if self.stopped:
                 return
 
-            gray = cv2.cvtColor(self._frame, cv2.COLOR_BGR2GRAY)
-            gray = cv2.equalizeHist(gray)
+            if not self.q.full():
+                self.change_frame = False
 
-            faces = cascade_face.detectMultiScale(gray, 1.1, 5)
-            for (x, y, w, h) in faces:
-                cv2.rectangle(
-                    self._frame,
-                    (x, y),
-                    (x + w, y + h),
-                    (255, 0, 255),
-                    2
-                )
+                gray = cv2.cvtColor(self._frame, cv2.COLOR_BGR2GRAY)
+                gray = cv2.equalizeHist(gray)
 
-                if self.model_eyes and self.detect_eyes:
-                    face_roi = gray[y:y+h, x:x+w]
-                    eyes = cascade_eyes.detectMultiScale(face_roi, 1.1, 1)
-                    for (x2, y2, w2, h2) in eyes:
-                        cv2.rectangle(
-                            self._frame,
-                            (x + x2, y + y2),
-                            (x + x2 + w2, y + y2 + h2),
-                            (255, 0, 0),
-                            2
-                        )
+                faces = cascade_face.detectMultiScale(gray)
+                for (x, y, w, h) in faces:
+                    cv2.rectangle(
+                        self._frame,
+                        (x, y),
+                        (x + w, y + h),
+                        (255, 0, 255),
+                        2
+                    )
+
+                    if self.model_eyes and self.detect_eyes:
+                        face_roi = gray[y:y+h, x:x+w]
+                        eyes = cascade_eyes.detectMultiScale(face_roi)
+                        for (x2, y2, w2, h2) in eyes:
+                            cv2.rectangle(
+                                self._frame,
+                                (x + x2, y + y2),
+                                (x + x2 + w2, y + y2 + h2),
+                                (255, 0, 0),
+                                2
+                            )
+
+                if len(faces) > 0:
+                    self.q.put(self._frame)
+                    self.change_frame = True
+            else:
+                time.sleep(0.5)
+
+            # cv2.imshow('Video', self._frame)
+            # if cv2.waitKey(1) == ord('q'):
+            #     self.stopped = True
 
     def update(self, frame):
         self._frame = frame
 
     def read(self):
-        return self._frame
+        return self.q.get()
+
+    def more(self):
+        tries = 0
+        while self.q.qsize() == 0 and not self.stopped and tries < 5:
+            time.sleep(0.1)
+            tries += 1
+        return self.q.qsize() > 0
+
+    def running(self):
+        return self.more() or not self.stopped
 
 
 wbs = WebcamVideoStream(0)
@@ -162,28 +155,22 @@ wbs.start()
 time.sleep(1.0)
 fps = FPS().start()
 
-# while True:
-#     frame = wbs.read()
-#     frame = imutils.resize(frame, height=540)
-#     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#     frame = np.dstack([frame, frame, frame])
-
-#     cv2.imshow('Frame', frame)
-#     if cv2.waitKey(1) == ord('q'):
-#         break
-#     fps.update()
+face_detector = ObjectDetector(
+    'data/haarcascade_frontalface_default.xml',
+    'data/haarcascade_eye.xml',
+    wbs.read()
+).start()
 
 video_show = VideoShow(wbs.read()).start()
 cps = CountFrame().start()
 
-while not video_show.stopped:
+while face_detector.more() and not video_show.stopped:
     frame = wbs.read()
-    # frame = imutils.resize(frame, height=540)
-    # frame = cv2.cvtColor(frame, cvq2.COLOR_BGR2GRAY)
-    # frame = np.dstack([frame, frame, frame])
     # frame = put_iteractions_counting(frame, cps.count_frame())
 
-    video_show.frame = frame
+    face_detector.update(frame)
+
+    video_show.frame = face_detector.read()
     cps.increment()
     fps.update()
 
