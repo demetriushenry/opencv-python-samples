@@ -1,11 +1,14 @@
 import time
 from datetime import datetime
-from threading import Thread
+from threading import Lock, Thread
 
 import cv2
 import imutils
 import numpy as np
 from imutils.video import FPS, WebcamVideoStream
+
+
+mutex = Lock()
 
 
 def put_iteractions_counting(frame, iterations):
@@ -21,6 +24,7 @@ def put_iteractions_counting(frame, iterations):
 
 
 def detect(frame, model_face, model_eyes):
+    with mutex:
         cascade_face = cv2.CascadeClassifier(model_face)
         cascade_eyes = cv2.CascadeClassifier(model_eyes)
 
@@ -45,7 +49,7 @@ def detect(frame, model_face, model_eyes):
                 radius = int(round((w2 + h2)*0.25))
                 frame = cv2.circle(frame, eye_center, radius, 255, 2)
 
-        frame = cv2.flip(frame, 1)
+        # frame = cv2.flip(frame, 1)
 
         return frame
 
