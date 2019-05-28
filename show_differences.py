@@ -33,15 +33,15 @@ def show_differences_1(img_source, img_dest):
     print('SSIM:', score)
 
     thresh = cv2.threshold(
-        diff, 
-        0, 
-        255, 
+        diff,
+        0,
+        255,
         cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU
     )[1]
 
     cnts = cv2.findContours(
-        thresh.copy(), 
-        cv2.RETR_EXTERNAL, 
+        thresh.copy(),
+        cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE
     )
 
@@ -52,26 +52,37 @@ def show_differences_1(img_source, img_dest):
         cv2.rectangle(img_s, (x, y), (x + w, y + h), (0, 0, 255), 2)
         cv2.rectangle(img_d, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
+    h_images_1 = np.hstack((img_s, img_d))
+    h_images_2 = np.hstack((diff, thresh))
+
     res_w, res_h = get_screen_resolution()
 
     ratio = 1.8
 
-    cv2.namedWindow('Original', cv2.WINDOW_KEEPRATIO)
-    cv2.resizeWindow('Original', int(res_w // ratio), int(res_h // ratio))
+    # cv2.namedWindow('Original', cv2.WINDOW_KEEPRATIO)
+    # cv2.resizeWindow('Original', int(res_w // ratio), int(res_h // ratio))
 
-    cv2.namedWindow('Modified', cv2.WINDOW_KEEPRATIO)
-    cv2.resizeWindow('Modified', int(res_w // ratio), int(res_h // ratio))
+    # cv2.namedWindow('Modified', cv2.WINDOW_KEEPRATIO)
+    # cv2.resizeWindow('Modified', int(res_w // ratio), int(res_h // ratio))
+
+    # cv2.namedWindow('Difference', cv2.WINDOW_KEEPRATIO)
+    # cv2.resizeWindow('Difference', int(res_w // ratio), int(res_h // ratio))
+
+    # cv2.namedWindow('Thresh', cv2.WINDOW_KEEPRATIO)
+    # cv2.resizeWindow('Thresh', int(res_w // ratio), int(res_h // ratio))
+
+    cv2.namedWindow('Result', cv2.WINDOW_KEEPRATIO)
+    cv2.resizeWindow('Result', int(res_w // ratio), int(res_h // ratio))
 
     cv2.namedWindow('Difference', cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Difference', int(res_w // ratio), int(res_h // ratio))
 
-    cv2.namedWindow('Thresh', cv2.WINDOW_KEEPRATIO)
-    cv2.resizeWindow('Thresh', int(res_w // ratio), int(res_h // ratio))
-
-    cv2.imshow('Original', img_s)
-    cv2.imshow('Modified', img_d)
-    cv2.imshow('Difference', diff)
-    cv2.imshow('Thresh', thresh)
+    # cv2.imshow('Original', img_s)
+    # cv2.imshow('Modified', img_d)
+    # cv2.imshow('Difference', diff)
+    # cv2.imshow('Thresh', thresh)
+    cv2.imshow('Result', h_images_1)
+    cv2.imshow('Difference', h_images_2)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -86,7 +97,7 @@ def show_differences_2(img_source, img_dest):
     mask = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
 
     th = 0
-    imask = mask>th
+    imask = mask > th
 
     canvas = np.zeros_like(img_d, np.uint8)
     canvas[imask] = img_d[imask]
@@ -97,7 +108,7 @@ def show_differences_2(img_source, img_dest):
 
     cv2.namedWindow('Mask', cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Mask', int(res_w // ratio), int(res_h // ratio))
-    
+
     cv2.imshow('Mask', mask)
 
     cv2.namedWindow('Resultado', cv2.WINDOW_KEEPRATIO)
@@ -174,8 +185,8 @@ def show_differences_4(img_source, img_dest):
         cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
     )
 
-    _, cnts, _ = cv2.findContours(
-        thresh,
+    cnts, _ = cv2.findContours(
+        thresh.copy(),
         cv2.RETR_LIST,
         cv2.CHAIN_APPROX_SIMPLE
     )
@@ -219,7 +230,7 @@ def main():
     original = args.original
     modified = args.modified
 
-    show_differences_4(original, modified)
+    show_differences_1(original, modified)
 
 
 if __name__ == "__main__":
