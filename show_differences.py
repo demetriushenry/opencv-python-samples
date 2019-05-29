@@ -5,6 +5,7 @@ import sys
 import cv2
 import imutils
 import numpy as np
+from matplotlib import pyplot as plt
 from skimage.measure import compare_ssim
 
 
@@ -47,6 +48,8 @@ def show_differences_1(img_source, img_dest):
 
     cnts = imutils.grab_contours(cnts)
 
+    # cv2.drawContours(img_s, cnts, -1, 255, 2)
+
     for c in cnts:
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(img_s, (x, y), (x + w, y + h), (0, 0, 255), 2)
@@ -59,28 +62,12 @@ def show_differences_1(img_source, img_dest):
 
     ratio = 1.8
 
-    # cv2.namedWindow('Original', cv2.WINDOW_KEEPRATIO)
-    # cv2.resizeWindow('Original', int(res_w // ratio), int(res_h // ratio))
-
-    # cv2.namedWindow('Modified', cv2.WINDOW_KEEPRATIO)
-    # cv2.resizeWindow('Modified', int(res_w // ratio), int(res_h // ratio))
-
-    # cv2.namedWindow('Difference', cv2.WINDOW_KEEPRATIO)
-    # cv2.resizeWindow('Difference', int(res_w // ratio), int(res_h // ratio))
-
-    # cv2.namedWindow('Thresh', cv2.WINDOW_KEEPRATIO)
-    # cv2.resizeWindow('Thresh', int(res_w // ratio), int(res_h // ratio))
-
     cv2.namedWindow('Result', cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Result', int(res_w // ratio), int(res_h // ratio))
 
     cv2.namedWindow('Difference', cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Difference', int(res_w // ratio), int(res_h // ratio))
 
-    # cv2.imshow('Original', img_s)
-    # cv2.imshow('Modified', img_d)
-    # cv2.imshow('Difference', diff)
-    # cv2.imshow('Thresh', thresh)
     cv2.imshow('Result', h_images_1)
     cv2.imshow('Difference', h_images_2)
 
@@ -185,11 +172,13 @@ def show_differences_4(img_source, img_dest):
         cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
     )
 
-    cnts, _ = cv2.findContours(
+    cnts = cv2.findContours(
         thresh.copy(),
         cv2.RETR_LIST,
         cv2.CHAIN_APPROX_SIMPLE
     )
+
+    cnts = imutils.grab_contours(cnts)
 
     # cnt = max(cnts, key=cv2.contourArea)
 
@@ -201,7 +190,7 @@ def show_differences_4(img_source, img_dest):
 
     for cnt in cnts:
         (x, y, w, h) = cv2.boundingRect(cnt)
-        cv2.rectangle(img_out, (x, y), (x + w, y + h), (0, 255, 0), 16)
+        cv2.rectangle(img_out, (x, y), (x + w, y + h), (0, 255, 0), 4)
 
     res_w, res_h = get_screen_resolution()
 
@@ -221,6 +210,54 @@ def show_differences_4(img_source, img_dest):
     cv2.destroyAllWindows()
 
 
+def show_differences_5(img_source, img_dest):
+    img_s = cv2.imread(img_source)
+    img_d = cv2.imread(img_dest)
+
+    gray_s = cv2.cvtColor(img_s, cv2.COLOR_BGR2GRAY)
+    gray_d = cv2.cvtColor(img_d, cv2.COLOR_BGR2GRAY)
+
+    (score, diff) = compare_ssim(gray_s, gray_d, full=True)
+    diff = (diff * 255).astype('uint8')
+
+    print('SSIM:', score)
+
+    thresh = cv2.threshold(
+        diff,
+        0,
+        255,
+        cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU
+    )[1]
+
+    cnts = cv2.findContours(
+        thresh.copy(),
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    cnts = imutils.grab_contours(cnts)
+
+    cv2.drawContours(img_s, cnts, -1, 255, 2)
+
+    for c in cnts:
+        (x, y, w, h) = cv2.boundingRect(c)
+        cv2.rectangle(img_s, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        cv2.rectangle(img_d, (x, y), (x + w, y + h), (0, 0, 255), 2)
+
+    titles = ['Original', 'Modifief', 'Diff', 'Thresh']
+    images = [img_s, img_d, diff, thresh]
+
+    for i in range(len(images)):
+        if len(images[i].shape) > 2:
+            img = cv2.cvtColor(images[i], cv2.COLOR_BGR2RGB)
+        else:
+            img = cv2.cvtColor(images[i], cv2.COLOR_GRAY2RGB)
+        plt.subplot(2, 2, i+1), plt.imshow(img)
+        plt.title(titles[i])
+
+    plt.show()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--original', required=True, help='Image source')
@@ -230,7 +267,7 @@ def main():
     original = args.original
     modified = args.modified
 
-    show_differences_1(original, modified)
+    show_differences_5(original, modified)
 
 
 if __name__ == "__main__":
