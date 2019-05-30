@@ -32,43 +32,67 @@ def show_window(window_name: str, img_mat, ratio=1.8):
 
 def matching_all_objects(img_source, img_template):
     img_rgb = cv2.imread(img_source)
-    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread(img_template, 0)
+    template = cv2.imread(img_template)
 
-    w, h = template.shape[::-1]
+    w, h = template.shape[:-1]
 
     method = cv2.TM_CCOEFF_NORMED
-    
-    res = cv2.matchTemplate(img_gray, template, method)
+
+    res = cv2.matchTemplate(img_rgb, template, method)
 
     threshold = 0.8
 
     loc = np.where(res >= threshold)
+    print(loc[::-1])
 
     for pt in zip(*loc[::-1]):
-        cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), 255, 16)
+        cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), 255, 4)
 
     return img_rgb
 
 
 def matching_object(img_source, img_template):
     img_rgb = cv2.imread(img_source)
-    img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-    template = cv2.imread(img_template, 0)
+    template = cv2.imread(img_template)
 
-    w, h = template.shape[::-1]
+    w, h = template.shape[:-1]
 
     method = cv2.TM_CCOEFF_NORMED
 
-    res = cv2.matchTemplate(img_gray, template, method)
+    res = cv2.matchTemplate(img_rgb, template, method)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
     top_left = max_loc
     bottom_right = (top_left[0] + w, top_left[1] + h)
 
-    cv2.rectangle(img_rgb, top_left, bottom_right, 255, 16)
+    cv2.rectangle(img_rgb, top_left, bottom_right, 255, 4)
 
     return img_rgb
+
+
+def matching_object_2(img_source, img_template):
+    method = cv2.TM_SQDIFF_NORMED
+
+    small_image = cv2.imread(img_source)
+    large_image = cv2.imread(img_template)
+
+    result = cv2.matchTemplate(small_image, large_image, method)
+
+    mn, _, mnLoc, _ = cv2.minMaxLoc(result)
+
+    MPx, MPy = mnLoc
+
+    trows, tcols = small_image.shape[:2]
+
+    cv2.rectangle(
+        large_image,
+        (MPx, MPy),
+        (MPx+tcols, MPy+trows),
+        (0, 0, 255),
+        2
+    )
+
+    return large_image
 
 
 def main():
@@ -81,7 +105,7 @@ def main():
     source_path = args.source
     template_path = args.template
 
-    result = matching_all_objects(source_path, template_path)
+    result = matching_object_2(source_path, template_path)
 
     show_window('Output', result)
 
