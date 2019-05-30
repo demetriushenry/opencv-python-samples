@@ -62,7 +62,7 @@ if __name__ == '__main__':
     img = cv.imread('images/20190129_114844.jpg')
     squares = find_squares(img)
     cv.drawContours(img, squares, -1, (0, 255, 0), 3)
-    
+
     res_w, res_h = get_screen_resolution()
 
     cv.namedWindow('Squares', cv.WINDOW_KEEPRATIO)

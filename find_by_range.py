@@ -3,6 +3,7 @@ import subprocess
 import sys
 
 import cv2
+import imutils
 import numpy as np
 
 
@@ -33,7 +34,7 @@ def detect_by_range(img_path: str, img_template: str):
     # cv2.imshow('Range Detect', np.hstack([img, output]))
     cv2.imshow('Original', img)
     cv2.imshow('Output', output)
-    
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -70,6 +71,29 @@ def detect_by_range_2(img_path: str, img_template: str):
         res_w // ratio), int(res_h // ratio))
 
     cv2.imshow('Range Detect 2', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def detect_by_range_3(img_path: str):
+    img = cv2.imread(img_path)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    thresh = cv2.threshold(blurred, 70, 255, cv2.THRESH_BINARY)[1]
+
+    cnts = cv2.findContours(
+        thresh.copy(),
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+    cnts = imutils.grab_contours(cnts)
+
+    for c in cnts:
+        cv2.drawContours(img, [c], -1, (0, 255, 0), 2)
+
+    cv2.imshow('Range Detect 3', img)
+    cv2.imshow('Range Detect 3 - Mask', thresh)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -124,7 +148,7 @@ def get_rectangles(img_mat, img_dest):
         if len(approx) == 4:
             coords.append([ct])
             (x, y, w, h) = cv2.boundingRect(approx)
-            
+
             diff = w / float(h)
 
             if 0.95 <= diff <= 1.05: type_rect = 'square'
@@ -147,7 +171,8 @@ def main():
     parse.add_argument('-t', '--template', help='image template')
     args = parse.parse_args()
 
-    detect_by_range_2(args.image, args.template)
+    # detect_by_range_2(args.image, args.template)
+    detect_by_range_3(args.image)
 
 
 if __name__ == "__main__":
