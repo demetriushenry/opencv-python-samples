@@ -244,18 +244,25 @@ def show_differences_5(img_source, img_dest):
         cv2.rectangle(img_s, (x, y), (x + w, y + h), (0, 0, 255), 2)
         cv2.rectangle(img_d, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-    titles = ['Original', 'Modifief', 'Diff', 'Thresh']
-    images = [img_s, img_d, diff, thresh]
+    images_data = {
+        'Original': img_s,
+        'Modified': img_d,
+        'Diff': diff,
+        'Thresh': thresh
+    }
 
-    for i in range(len(images)):
-        if len(images[i].shape) > 2:
-            img = cv2.cvtColor(images[i], cv2.COLOR_BGR2RGB)
+    for i, (k, v) in enumerate(images_data.items()):
+        if len(v.shape) > 2:
+            img = cv2.cvtColor(v, cv2.COLOR_BGR2RGB)
         else:
-            img = cv2.cvtColor(images[i], cv2.COLOR_GRAY2RGB)
+            img = cv2.cvtColor(v, cv2.COLOR_GRAY2RGB)
         plt.subplot(2, 2, i+1), plt.imshow(img)
-        plt.title(titles[i])
+        plt.title(k)
 
     plt.show()
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def main():
