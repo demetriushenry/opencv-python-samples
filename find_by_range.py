@@ -9,7 +9,7 @@ import numpy as np
 
 def get_screen_resolution():
     output = subprocess.Popen(
-        'xrandr | grep "\*" | cut -d" " -f4',
+        'xrandr | grep "*" | cut -d" " -f4',
         shell=True,
         stdout=subprocess.PIPE
     ).communicate()[0]
@@ -151,9 +151,12 @@ def get_rectangles(img_mat, img_dest):
 
             diff = w / float(h)
 
-            if 0.95 <= diff <= 1.05: type_rect = 'square'
-            elif 5 >= diff >= 3: type_rect = 'obround'
-            else: type_rect = 'rectangle'
+            if 0.95 <= diff <= 1.05:
+                type_rect = 'square'
+            elif 5 >= diff >= 3:
+                type_rect = 'obround'
+            else:
+                type_rect = 'rectangle'
 
             if type_rect != 'obround':
                 cv2.rectangle(img_dest, (x, y), (x+w, y+h), (0, 0, 255), 1)
