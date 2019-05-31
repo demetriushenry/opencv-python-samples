@@ -19,7 +19,7 @@ if PY3:
 
 def get_screen_resolution():
     output = subprocess.Popen(
-        'xrandr | grep "\*" | cut -d" " -f4',
+        'xrandr | grep "*" | cut -d" " -f4',
         shell=True,
         stdout=subprocess.PIPE
     ).communicate()[0]
@@ -40,7 +40,7 @@ def find_squares(img):
     for gray in cv.split(img):
         for thrs in xrange(0, 255, 26):
             if thrs == 0:
-                bin = cv.Canny(gray, 0, 50, apertureSize=5)
+                bin = cv.Canny(gray, 50, 200)
                 bin = cv.dilate(bin, None)
             else:
                 _retval, bin = cv.threshold(gray, thrs, 255, cv.THRESH_BINARY)
@@ -49,19 +49,27 @@ def find_squares(img):
             for cnt in contours:
                 cnt_len = cv.arcLength(cnt, True)
                 cnt = cv.approxPolyDP(cnt, 0.02*cnt_len, True)
-                if len(cnt) == 4 and cv.contourArea(cnt) > 1000 and cv.isContourConvex(cnt):
+                if len(cnt) == 4 and cv.contourArea(cnt) > 400000 \
+                        and cv.isContourConvex(cnt):
                     cnt = cnt.reshape(-1, 2)
                     max_cos = np.max(
-                        [angle_cos(cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4]) for i in xrange(4)])
+                        [angle_cos(
+                            cnt[i],
+                            cnt[(i+1) % 4],
+                            cnt[(i+2) % 4]) for i in xrange(4)]
+                    )
                     if max_cos < 0.1:
                         squares.append(cnt)
     return squares
 
 
 if __name__ == '__main__':
-    img = cv.imread('images/20190129_114844.jpg')
+    img = cv.imread('/home/demetrius/Pictures/FOTO_TV_PROCEL.jpg')
     squares = find_squares(img)
-    cv.drawContours(img, squares, -1, (0, 255, 0), 3)
+    # for square in squares:
+    #     (x, y, w, h) = cv.boundingRect(square)
+    #     print(img[y, x])
+    cv.drawContours(img, [squares[0]], -1, (0, 0, 255), 2)
 
     res_w, res_h = get_screen_resolution()
 

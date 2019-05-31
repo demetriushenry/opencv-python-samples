@@ -79,7 +79,7 @@ def detect_by_range_3(img_path: str):
     img = cv2.imread(img_path)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.threshold(blurred, 70, 255, cv2.THRESH_BINARY)[1]
 
     cnts = cv2.findContours(
