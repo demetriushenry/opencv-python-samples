@@ -30,12 +30,14 @@ pos_path = parent_path + '/pos'
 neg_path = parent_path + '/neg'
 dat_path = parent_path + '/data'
 
-if not os.path.exists(pos_path) and not os.path.exists(neg_path) and not os.path.exists(dat_path):
+if not os.path.exists(pos_path) and not os.path.exists(neg_path) and not \
+        os.path.exists(dat_path):
     print('pos, neg or data folders do not exists')
     exit(0)
 
-    if not os.path.isdir(pos_path) and not os.path.isdir(neg_path) and not os.path.isdir(dat_path):
-        print('pos, neg and data folders must be folder')
+    if not os.path.isdir(pos_path) and not os.path.isdir(neg_path) and not \
+            os.path.isdir(dat_path):
+        print('pos, neg and data must be folder')
         exit(0)
 
 # get object name
