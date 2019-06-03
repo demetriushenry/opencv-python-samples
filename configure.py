@@ -2,10 +2,10 @@ import os
 from PIL import Image
 
 print(
-    'To proceed with the training setup you must have the main folder created' \
-    ' and inside the folders pos, neg and date.\n' \
-    'It is also necessary that in the pos and neg folders are already the images' \
-    ' to be used for the training.\n'
+    'To proceed with the training setup you must have the main folder created'
+    ' and inside the folders pos, neg and date.\n'
+    'It is also necessary that in the pos and neg folders are already the '
+    'images to be used for the training.\n'
 )
 
 print('Enter the parent path where the pos and neg folders are.\n')
@@ -65,7 +65,7 @@ for file in pos_content:
 pos_content = os.listdir(pos_path)
 
 # create obj info and bg files
-## obj info
+# obj info
 file = open(parent_path + '/{}.info'.format(obj_name), 'w')
 
 for f in pos_content:
@@ -74,12 +74,16 @@ for f in pos_content:
     image = Image.open(image_path)
     image_resolution = image.size
     image.close()
-    
-    file.write('pos/{} {}\n'.format(f, '1 0 0 {} {}'.format(image_resolution[0], image_resolution[1])))
+
+    file.write('pos/{} {}\n'.format(
+        f,
+        '1 0 0 {} {}'.format(image_resolution[0], image_resolution[1])
+        )
+    )
 
 file.close()
 
-## bg
+# bg
 file = open(parent_path + '/bg.txt', 'w')
 
 for f in neg_content:
@@ -89,15 +93,15 @@ file.close()
 
 # create samples tools from opencv
 cmd = 'opencv_createsamples -info {}.info -num {} -w 90 -h 90 -vec {}.vec'.format(
-        obj_name, 
-        len(pos_content), 
-        obj_name
-    )
+    obj_name,
+    len(pos_content),
+    obj_name
+)
 
-## run command
+# run command
 os.system(cmd)
 
-## check if vec file has been created
+# check if vec file has been created
 if not os.path.exists(parent_path + '/{}.vec'.format(obj_name)):
     print('somethint went wrong')
     exit(0)
@@ -124,10 +128,10 @@ cmd = 'opencv_traincascade -data data -vec {}.vec -bg bg.txt -numPos {} -numNeg 
 # if train_type == 'LBP':
 #     cmd += ' -weightTrimRate 0.95'
 
-## run command
+# run command
 os.system(cmd)
 
-## check if traincascade xml exists
+# check if traincascade xml exists
 if not os.path.exists(parent_path + '/data/cascade.xml'):
     print('something went wrong with xml file')
 

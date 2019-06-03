@@ -56,7 +56,8 @@ def find_squares(img):
                         [angle_cos(
                             cnt[i],
                             cnt[(i+1) % 4],
-                            cnt[(i+2) % 4]) for i in xrange(4)]
+                            cnt[(i+2) % 4]
+                        ) for i in xrange(4)]
                     )
                     if max_cos < 0.1:
                         squares.append(cnt)
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     # for square in squares:
     #     (x, y, w, h) = cv.boundingRect(square)
     #     print(img[y, x])
-    cv.drawContours(img, [squares[0]], -1, (0, 0, 255), 2)
+    cv.drawContours(img, [squares[0]], -1, (0, 0, 255), 3)
 
     res_w, res_h = get_screen_resolution()
 
