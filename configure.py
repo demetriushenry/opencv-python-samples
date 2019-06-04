@@ -19,7 +19,7 @@ if not folder_exists:
     exit(0)
 
 # check if parent is a folder
-parent_is_folder = os.path.isdir
+parent_is_folder = os.path.isdir(parent_path)
 
 if not parent_is_folder:
     print('parent path is not a folder.')
