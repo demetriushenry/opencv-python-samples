@@ -93,10 +93,18 @@ for f in neg_content:
 
 file.close()
 
+print('\nEnter the width for object to detect.\n')
+obj_w = input()
+
+print('\nEnter the height for object to detect.\n')
+obj_h = input()
+
 # create samples tools from opencv
-cmd = 'opencv_createsamples -info {}.info -num {} -w 90 -h 90 -vec {}.vec'.format(
+cmd = 'opencv_createsamples -info {}.info -num {} -w {} -h {} -vec {}.vec'.format(
     obj_name,
     len(pos_content),
+    obj_w,
+    obj_h,
     obj_name
 )
 
@@ -119,11 +127,13 @@ print('\nEnter the train type for training - HAAR, LBP or HOG.\n')
 train_type = input()
 
 cmd = 'opencv_traincascade -data data -vec {}.vec -bg bg.txt -numPos {} -numNeg {} -numStages {}' \
-      ' -numThreads 4 -w 90 -h 90 -featureType {}'.format(
+      ' -numThreads 4 -w {} -h {} -featureType {}'.format(
           obj_name,
           number_samples,
           number_samples,
           number_stages,
+          obj_w,
+          obj_h,
           train_type
       )
 
