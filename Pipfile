@@ -10,6 +10,7 @@ pyserial = "*"
 imutils = "*"
 scikit-image = "*"
 sphinx = "*"
+dlib = "*"
 
 [dev-packages]
 pydocstyle = "*"
