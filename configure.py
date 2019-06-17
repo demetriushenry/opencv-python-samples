@@ -126,8 +126,10 @@ number_stages = input()
 print('\nEnter the train type for training - HAAR, LBP or HOG.\n')
 train_type = input()
 
-cmd = 'opencv_traincascade -data data -vec {}.vec -bg bg.txt -numPos {} -numNeg {} -numStages {}' \
-      ' -numThreads 4 -w {} -h {} -featureType {}'.format(
+cmd = 'opencv_traincascade -data data -vec {}.vec -bg bg.txt -numPos {}' \
+      ' -numNeg {} -numStages {} -minHitRate 0.999 -maxFalseAlarmRate 0.5' \
+      ' -numThreads 4 -w {} -h {} -featureType {} -mode ALL' \
+      ' -precalcValBufSize 1024 -precalcIdxBufSize 1024'.format(
           obj_name,
           number_samples,
           number_samples,
