@@ -11,6 +11,7 @@ imutils = "*"
 scikit-image = "*"
 sphinx = "*"
 dlib = "*"
+pytesseract = "*"
 
 [dev-packages]
 pydocstyle = "*"

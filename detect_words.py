@@ -1,9 +1,9 @@
 import argparse
 import math
 import sys
-import utils
 
 import cv2
+import pytesseract
 
 
 def decode(scores, geometry, score_thresh):
@@ -57,12 +57,14 @@ def main():
     input_img = args.input
     img = cv2.imread(input_img)
 
+    # tess_config = ("-l eng --oem 3 --psm 6")
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # print(pytesseract.image_to_string(gray, config=tess_config))
+
     conf_thresh = 0.5
     nms_thresh = 0.4
-    print((img.shape[0] / 1000) / 100)
     input_w = int(img.shape[1] * 0.02) * 32
     input_h = int(img.shape[0] * 0.02) * 32
-    print(input_w, input_h)
     model = '/home/demetrius/Downloads/frozen_east_text_detection.pb'
 
     detection_net = cv2.dnn.readNet(model)
@@ -85,13 +87,13 @@ def main():
     )
 
     detection_net.setInput(blob)
-    detections = detection_net.forward(detection_layers)
-
-    scores, geometry = detections[0], detections[1]
+    scores, geometry = detection_net.forward(detection_layers)
     rects, confidences = decode(scores, geometry, conf_thresh)
 
     indices = cv2.dnn.NMSBoxesRotated(
         rects, confidences, conf_thresh, nms_thresh)
+
+    square_boxes = []
 
     for i in indices:
         vertices = cv2.boxPoints(rects[i[0]])
@@ -101,13 +103,25 @@ def main():
         for j in range(4):
             p1 = (vertices[j][0], vertices[j][1])
             p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
-            cv2.line(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
+            # cv2.line(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
+        s1 = (vertices[1][0], vertices[1][1])
+        s2 = (vertices[3][0], vertices[3][1])
+        square_boxes.append((s1, s2))
 
-    res_w, res_h = utils.get_screen_resolution()
+    for box in square_boxes:
+        p1, p2 = box[0], box[1]
+        cv2.rectangle(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
+        y1, y2, x1, x2 = int(p1[1]), int(p2[1]), int(p1[0]), int(p2[0])
+        roi = img[y1:y2, x1:x2]
+        # print(pytesseract.image_to_string(roi))
+        tess_config = ("--oem 1 --psm 7")
+        # gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        print(pytesseract.image_to_string(roi, config=tess_config))
+
     cv2.namedWindow('Words', cv2.WINDOW_KEEPRATIO)
-    cv2.resizeWindow('Words', int(res_w // 1.2), int(res_h // 1.2))
     cv2.imshow('Words', img)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
