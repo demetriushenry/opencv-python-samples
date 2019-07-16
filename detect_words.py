@@ -3,6 +3,7 @@ import math
 import sys
 
 import cv2
+import numpy as np
 import pytesseract
 
 
@@ -49,6 +50,30 @@ def decode(scores, geometry, score_thresh):
     return (detections, confidences)
 
 
+def apply_threshold(img, method):
+    switcher = {
+        1: cv2.threshold(cv2.GaussianBlur(img, (9, 9), 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        2: cv2.threshold(cv2.GaussianBlur(img, (7, 7), 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        3: cv2.threshold(cv2.GaussianBlur(img, (5, 5), 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        4: cv2.threshold(cv2.medianBlur(img, 5), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        5: cv2.threshold(cv2.medianBlur(img, 3), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        6: cv2.adaptiveThreshold(cv2.GaussianBlur(img, (5, 5), 0), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2),
+        7: cv2.adaptiveThreshold(cv2.medianBlur(img, 3), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
+    }
+    return switcher.get(method, "Invalid method")
+
+
+def get_string(img, method):
+    kernel = np.ones((1, 1), np.uint8)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.bitwise_not(gray)
+    gray = cv2.dilate(gray, kernel, iterations=1)
+    gray = cv2.erode(gray, kernel, iterations=1)
+    gray = apply_threshold(gray, method)
+    tess_config = ("-l eng --oem 1 --psm 7")
+    return pytesseract.image_to_string(img, config=tess_config)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', required=True)
@@ -56,10 +81,6 @@ def main():
 
     input_img = args.input
     img = cv2.imread(input_img)
-
-    # tess_config = ("-l eng --oem 3 --psm 6")
-    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # print(pytesseract.image_to_string(gray, config=tess_config))
 
     conf_thresh = 0.5
     nms_thresh = 0.4
@@ -113,10 +134,7 @@ def main():
         cv2.rectangle(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
         y1, y2, x1, x2 = int(p1[1]), int(p2[1]), int(p1[0]), int(p2[0])
         roi = img[y1:y2, x1:x2]
-        # print(pytesseract.image_to_string(roi))
-        tess_config = ("--oem 1 --psm 7")
-        # gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-        print(pytesseract.image_to_string(roi, config=tess_config))
+        print(get_string(roi, 2))
 
     cv2.namedWindow('Words', cv2.WINDOW_KEEPRATIO)
     cv2.imshow('Words', img)
