@@ -1,3 +1,4 @@
+"""ex. python recognize_words.py -i /home/demetrius/Pictures/procel_tag.jpg"""
 import argparse
 import sys
 

@@ -1,3 +1,4 @@
+"""ex. python detect_words.py -i /home/demetrius/Pictures/procel_tag.jpg"""
 import argparse
 import math
 import sys
@@ -74,6 +75,40 @@ def get_string(img, method):
     return pytesseract.image_to_string(img, config=tess_config)
 
 
+def correct_skew(src_img):
+    img = src_img.copy()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.bitwise_not(gray)
+
+    thresh = cv2.threshold(
+        gray,
+        0,
+        255,
+        cv2.THRESH_BINARY | cv2.THRESH_OTSU
+    )[1]
+
+    coords = np.column_stack(np.where(thresh > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+
+    (h, w) = img.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(
+        img,
+        M,
+        (w, h),
+        flags=cv2.INTER_CUBIC,
+        borderMode=cv2.BORDER_REPLICATE
+    )
+
+    return rotated
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', required=True)
@@ -134,6 +169,9 @@ def main():
         cv2.rectangle(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
         y1, y2, x1, x2 = int(p1[1]), int(p2[1]), int(p1[0]), int(p2[0])
         roi = img[y1:y2, x1:x2]
+        cv2.imshow('roi original', roi)
+        roi = correct_skew(roi)
+        cv2.imshow('roi rotated', roi)
         print(get_string(roi, 2))
 
     cv2.namedWindow('Words', cv2.WINDOW_KEEPRATIO)
