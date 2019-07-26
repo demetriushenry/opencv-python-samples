@@ -17,11 +17,13 @@ class TowerLamp(object):
     CMD_OUT_RELAY_OP_1_W_R2 = [0x02, 0x57, 0x31, 0x03]
     CMD_OUT_RELAY_OP_1_W_R3 = [0x02, 0x57, 0x32, 0x03]
     CMD_OUT_RELAY_OP_1_W_R4 = [0x02, 0x57, 0x33, 0x03]
+    CMD_OUT_RELAY_OP_1_W_R4_2 = [0x02, 0x57, 0x38, 0x03]
 
     CMD_OUT_RELAY_OP_2_T_R1 = [0x02, 0x54, 0x30, 0x03]
     CMD_OUT_RELAY_OP_2_T_R2 = [0x02, 0x54, 0x31, 0x03]
     CMD_OUT_RELAY_OP_2_T_R3 = [0x02, 0x54, 0x32, 0x03]
     CMD_OUT_RELAY_OP_2_T_R4 = [0x02, 0x54, 0x33, 0x03]
+    CMD_OUT_RELAY_OP_2_T_R4_2 = [0x02, 0x54, 0x38, 0x03]
 
     CMD_OUT_RELAY_OP_3_O_R1_OFF = [0x02, 0x4F, 0x30, 0x30, 0x03]
     CMD_OUT_RELAY_OP_3_O_R1_ON = [0x02, 0x4F, 0x30, 0x31, 0x03]
@@ -58,11 +60,14 @@ class TowerLamp(object):
 
         self.turn_off_all_relay()
 
-    def _run_cmd(self, cmd):
+    def _run_cmd(self, cmd, pulse=False):
         self.port.write(cmd)
         time.sleep(0.05)
+        if pulse:
+            time.sleep(0.45)
+            self.turn_off_all_relay()
 
-    def toggle_relay(self, relay, on=True):
+    def toggle_relay(self, relay, on=True, pulse=False):
         """Turn On/Off specific relay.
 
         Arguments:
@@ -75,40 +80,53 @@ class TowerLamp(object):
             str -- show result sent by serial port
 
         """
-        if relay == TowerLamp.RELAY_1:
+        if relay == self.RELAY_1:
             if on:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R1_ON
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R1_ON
                 self.is_relay_1_on = True
             else:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R1_OFF
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R1_OFF
                 self.is_relay_1_on = False
-        elif relay == TowerLamp.RELAY_2:
+        elif relay == self.RELAY_2:
             if on:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R2_ON
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R2_ON
                 self.is_relay_2_on = True
             else:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R2_OFF
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R2_OFF
                 self.is_relay_2_on = False
-        elif relay == TowerLamp.RELAY_3:
+        elif relay == self.RELAY_3:
             if on:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R3_ON
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R3_ON
                 self.is_relay_3_on = True
             else:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R3_OFF
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R3_OFF
                 self.is_relay_3_on = False
         else:
             if on:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R4_ON
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R4_ON
                 self.is_relay_4_on = True
             else:
-                cmd = TowerLamp.CMD_OUT_RELAY_OP_3_O_R4_OFF
+                cmd = self.CMD_OUT_RELAY_OP_3_O_R4_OFF
                 self.is_relay_4_on = False
 
-        self._run_cmd(cmd)
+        self._run_cmd(cmd, pulse)
+
+    def toogle_relay_infinity(self, on=True):
+        """Turn On/Off relay 4.
+
+        Relay 4 get pulsing.
+        """
+        if on:
+            cmd = self.CMD_OUT_RELAY_OP_1_W_R4_2
+            self.is_relay_4_on = True
+        else:
+            cmd = self.CMD_OUT_RELAY_OP_3_O_R4_OFF
+            self.is_relay_4_on = False
+        self._run_cmd(cmd, False)
 
     def turn_off_all_relay(self):
         """Turn off all realy."""
-        self._run_cmd(TowerLamp.CMD_OUT_RELAY_OP_1_W_R1)
+        self._run_cmd(self.CMD_OUT_RELAY_OP_1_W_R1)
         self.is_relay_1_on = False
         self.is_relay_2_on = False
         self.is_relay_3_on = False

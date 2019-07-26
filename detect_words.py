@@ -71,8 +71,8 @@ def get_string(img, method):
     gray = cv2.dilate(gray, kernel, iterations=1)
     gray = cv2.erode(gray, kernel, iterations=1)
     gray = apply_threshold(gray, method)
-    tess_config = ("-l eng --oem 1 --psm 7")
-    return pytesseract.image_to_string(img, config=tess_config)
+    tess_config = ("-l eng --oem 1 --psm 6")
+    return pytesseract.image_to_string(gray, config=tess_config)
 
 
 def correct_skew(src_img):
@@ -149,30 +149,45 @@ def main():
     indices = cv2.dnn.NMSBoxesRotated(
         rects, confidences, conf_thresh, nms_thresh)
 
-    square_boxes = []
+    # square_boxes = []
 
     for i in indices:
-        vertices = cv2.boxPoints(rects[i[0]])
+        rect = rects[i[0]]
+        vertices = cv2.boxPoints(rect)
         for j in range(4):
             vertices[j][0] *= ratio_w
             vertices[j][1] *= ratio_h
-        for j in range(4):
-            p1 = (vertices[j][0], vertices[j][1])
-            p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
-            # cv2.line(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
-        s1 = (vertices[1][0], vertices[1][1])
-        s2 = (vertices[3][0], vertices[3][1])
-        square_boxes.append((s1, s2))
 
-    for box in square_boxes:
-        p1, p2 = box[0], box[1]
-        cv2.rectangle(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
-        y1, y2, x1, x2 = int(p1[1]), int(p2[1]), int(p1[0]), int(p2[0])
-        roi = img[y1:y2, x1:x2]
-        cv2.imshow('roi original', roi)
-        roi = correct_skew(roi)
-        cv2.imshow('roi rotated', roi)
-        print(get_string(roi, 2))
+        vertices = np.int0(vertices)
+        cv2.drawContours(img, [vertices], 0, (0, 255, 0), 2, cv2.LINE_AA)
+
+        w, h = int(rect[1][0]), int(rect[1][1])
+        src_pts = vertices.astype("float32")
+        dst_pts = np.array([[0, h-1],
+                            [0, 0],
+                            [w-1, 0],
+                            [w-1, h-1]], dtype="float32")
+        M = cv2.getPerspectiveTransform(src_pts, dst_pts)
+        warped = cv2.warpPerspective(img, M, (w, h))
+        print(get_string(warped, 7))
+
+    #     for j in range(4):
+    #         p1 = (vertices[j][0], vertices[j][1])
+    #         p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
+    #         # cv2.line(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
+    #     s1 = (vertices[1][0], vertices[1][1])
+    #     s2 = (vertices[3][0], vertices[3][1])
+    #     square_boxes.append((s1, s2))
+
+    # for i, box in enumerate(square_boxes):
+    #     p1, p2 = box[0], box[1]
+    #     cv2.rectangle(img, p1, p2, (0, 255, 0), 2, cv2.LINE_AA)
+    #     y1, y2, x1, x2 = int(p1[1]), int(p2[1]), int(p1[0]), int(p2[0])
+    #     roi = img[y1:y2, x1:x2]
+    #     cv2.imshow(f'roi original-{i}', roi)
+    #     roi = correct_skew(roi)
+    #     cv2.imshow(f'roi rotated-{i}', roi)
+    #     print(get_string(roi, 6))
 
     cv2.namedWindow('Words', cv2.WINDOW_KEEPRATIO)
     cv2.imshow('Words', img)

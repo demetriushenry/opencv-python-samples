@@ -96,8 +96,9 @@ def main():
 
     input_img = args.input
     img = cv2.imread(input_img)
-    angle = compute_skew(img)
-    rotated_img = correct_skew(img, angle)
+    # angle = compute_skew(img)
+    # rotated_img = correct_skew(img, angle)
+    rotated_img = correct_skew_2(img)
 
     cv2.namedWindow('Original', cv2.WINDOW_KEEPRATIO)
     cv2.imshow('Original', img)
