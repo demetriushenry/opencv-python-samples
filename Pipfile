@@ -17,6 +17,7 @@ pytesseract = "*"
 pydocstyle = "*"
 "autopep8" = "*"
 pylama = "*"
+jedi = "*"
 
 [requires]
 python_version = "3.6"
