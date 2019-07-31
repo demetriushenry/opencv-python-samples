@@ -1,6 +1,6 @@
 import cv2
-import pytesseract
 
+import pytesseract
 
 image = cv2.imread('/home/demetrius/Pictures/procel_tag.jpg')
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
