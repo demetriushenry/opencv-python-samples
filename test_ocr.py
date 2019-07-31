@@ -1,3 +1,4 @@
+"""Test ocr script."""
 import cv2
 
 import pytesseract
