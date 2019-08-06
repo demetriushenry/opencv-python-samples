@@ -23,13 +23,13 @@ def apply_threshold(img, method):
 
 def get_string(img, method):
     kernel = np.ones((1, 1), np.uint8)
-    # img = change_black_to_white(img)
+    img = change_black_to_white(img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # gray = cv2.bitwise_not(gray)
+    gray = cv2.bitwise_not(gray)
     gray = cv2.erode(gray, kernel, iterations=10)
     gray = cv2.dilate(gray, kernel, iterations=10)
     gray = apply_threshold(gray, method)
-    # gray = cv2.GaussianBlur(gray, (3, 3), 0)
+    gray = cv2.GaussianBlur(gray, (3, 3), 0)
     tess_config = ("-l eng --oem 1 --psm 6")
     return img, gray, pytesseract.image_to_string(gray, config=tess_config)
 
@@ -63,7 +63,7 @@ def main():
     input_img = args.input
     img = cv2.imread(input_img)
 
-    orig, thresh, text = get_string(img, 6)
+    orig, thresh, text = get_string(img, 1)
     text = text.replace('\t', '').replace('\n', '')
     # numbers = re.findall(r'\d+', text)
     # result = ''.join(numbers)
