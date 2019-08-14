@@ -25,6 +25,7 @@ def put_iteractions_counting(frame, iterations):
 
 def detect(frame, model_face, model_eyes):
     with mutex:
+        orig = frame.copy()
         cascade_face = cv2.CascadeClassifier(model_face)
         cascade_eyes = cv2.CascadeClassifier(model_eyes)
 
@@ -47,9 +48,9 @@ def detect(frame, model_face, model_eyes):
             for (x2, y2, w2, h2) in eyes:
                 eye_center = (x + x2 + w2//2, y + y2 + h2//2)
                 radius = int(round((w2 + h2)*0.25))
-                frame = cv2.circle(frame, eye_center, radius, 255, 2)
+                frame = cv2.circle(frame, eye_center, radius, 255, cv2.FILLED)
 
-        # frame = cv2.flip(frame, 1)
+        frame = cv2.addWeighted(frame, 0.4, orig, 1 - 0.4, 0)
 
         return frame
 
@@ -94,6 +95,7 @@ class VideoShow:
                 'data/haarcascade_frontalface_default.xml',
                 'data/haarcascade_eye.xml',
             )
+            cv2.namedWindow('Video', cv2.WINDOW_KEEPRATIO)
             cv2.imshow('Video', frame)
             if cv2.waitKey(1) == ord('q'):
                 self.stopped = True
@@ -158,12 +160,12 @@ class ObjectDetector:
         return self._frame
 
 
+fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
 wbs = WebcamVideoStream(0)
-# wbs.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-# wbs.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-# wbs.stream.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-# wbs.stream.set(cv2.CAP_PROP_FOCUS, 0)
-# wbs.stream.set(cv2.CAP_PROP_FPS, 60)
+wbs.stream.set(cv2.CAP_PROP_FOURCC, fourcc)
+wbs.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+wbs.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+wbs.stream.set(cv2.CAP_PROP_FPS, 60)
 wbs.start()
 time.sleep(1.0)
 fps = FPS().start()
@@ -187,7 +189,7 @@ while not video_show.stopped:
     # frame = imutils.resize(frame, height=540)
     # frame = cv2.cvtColor(frame, cvq2.COLOR_BGR2GRAY)
     # frame = np.dstack([frame, frame, frame])
-    # frame = put_iteractions_counting(frame, cps.count_frame())
+    frame = put_iteractions_counting(frame, cps.count_frame())
 
     video_show.frame = frame
     cps.increment()
