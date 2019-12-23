@@ -4,12 +4,6 @@ import sys
 import cv2 as cv
 import numpy as np
 
-'''
-Simple "Square Detector" program.
-
-Loads several images sequentially and tries to find squares in each image.
-'''
-
 # Python 2/3 compatibility
 PY3 = sys.version_info[0] == 3
 
@@ -38,18 +32,22 @@ def find_squares(img):
     img = cv.GaussianBlur(img, (5, 5), 0)
     squares = []
     for gray in cv.split(img):
-        for thrs in xrange(0, 255, 26):
+        for thrs in xrange(0, 255, 25):
             if thrs == 0:
                 bin = cv.Canny(gray, 50, 200)
                 bin = cv.dilate(bin, None)
             else:
                 _retval, bin = cv.threshold(gray, thrs, 255, cv.THRESH_BINARY)
+
+            # cv.RETR_TREE for rectangle
+            # cv.RETR_LIST for square
             contours, _hierarchy = cv.findContours(
-                bin, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+                bin, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
             for cnt in contours:
                 cnt_len = cv.arcLength(cnt, True)
-                cnt = cv.approxPolyDP(cnt, 0.02*cnt_len, True)
-                if len(cnt) == 4 and cv.contourArea(cnt) > 400000 \
+                cnt = cv.approxPolyDP(cnt, 0.1*cnt_len, True)
+                # cv.contourArea(cnt) > [value] according on sizes
+                if len(cnt) == 4 and cv.contourArea(cnt) > 13000 \
                         and cv.isContourConvex(cnt):
                     cnt = cnt.reshape(-1, 2)
                     max_cos = np.max(
@@ -65,17 +63,17 @@ def find_squares(img):
 
 
 if __name__ == '__main__':
-    img = cv.imread('/home/demetrius/Pictures/FOTO_TV_PROCEL.jpg')
+    img = cv.imread('/home/demetrius/Pictures/rack-tv.jpg')
     squares = find_squares(img)
     # for square in squares:
     #     (x, y, w, h) = cv.boundingRect(square)
     #     print(img[y, x])
-    cv.drawContours(img, [squares[0]], -1, (0, 0, 255), 3)
+    cv.drawContours(img, [squares[4]], -1, (255, 0, 255), -1)
 
     res_w, res_h = get_screen_resolution()
 
-    cv.namedWindow('Squares', cv.WINDOW_KEEPRATIO)
-    cv.resizeWindow('Squares', int(res_w // 1.2), int(res_h // 1.2))
+    cv.namedWindow('Squares', cv.WINDOW_NORMAL)
+    # cv.resizeWindow('Squares', int(res_w // 1.2), int(res_h // 1.2))
     cv.imshow('Squares', img)
 
     cv.waitKey(0)
