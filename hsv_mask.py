@@ -49,6 +49,7 @@ def main():
 
     result = cv2.bitwise_and(img, img, mask=mask)
 
+    # change the all mask color to white
     result[mask == 0] = ([255, 255, 255])
 
     view_image('Original', img)
