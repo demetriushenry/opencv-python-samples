@@ -44,8 +44,8 @@ def main():
     cv2.drawContours(img, [squares[0]], 0, color, -1)
 
     # update threshold
-    lower = np.array([255, 0, 255])
-    upper = np.array([255, 0, 255])
+    lower = np.array(list(color))
+    upper = np.array(list(color))
     mask = cv2.inRange(img, lower, upper)
 
     cv2.namedWindow('Thresh', cv2.WINDOW_NORMAL)
