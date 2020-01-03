@@ -43,8 +43,15 @@ def main():
     color = (255, 0, 255)
     cv2.drawContours(img, [squares[0]], 0, color, -1)
 
+    # update threshold
+    lower = np.array([255, 0, 255])
+    upper = np.array([255, 0, 255])
+    mask = cv2.inRange(img, lower, upper)
+
     cv2.namedWindow('Thresh', cv2.WINDOW_NORMAL)
     cv2.imshow('Thresh', threshold)
+    cv2.namedWindow('Mask', cv2.WINDOW_NORMAL)
+    cv2.imshow('Mask', mask)
     cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
     cv2.imshow('Original', img)
     cv2.waitKey(0)
