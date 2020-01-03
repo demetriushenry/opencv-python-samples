@@ -4,6 +4,11 @@ import cv2
 import numpy as np
 
 
+def view_image(name, img):
+    cv2.namedWindow(name, cv2.WINDOW_NORMAL)
+    cv2.imshow(name, img)
+
+
 def angle_cos(p0, p1, p2):
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
     return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1)*np.dot(d2, d2)))
@@ -48,12 +53,10 @@ def main():
     upper = np.array(list(color))
     mask = cv2.inRange(img, lower, upper)
 
-    cv2.namedWindow('Thresh', cv2.WINDOW_NORMAL)
-    cv2.imshow('Thresh', threshold)
-    cv2.namedWindow('Mask', cv2.WINDOW_NORMAL)
-    cv2.imshow('Mask', mask)
-    cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
-    cv2.imshow('Original', img)
+    view_image('Thresh', threshold)
+    view_image('Mask', mask)
+    view_image('Original', img)
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
