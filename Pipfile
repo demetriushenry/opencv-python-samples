@@ -13,6 +13,7 @@ sphinx = "*"
 dlib = "*"
 pytesseract = "*"
 psutil = "*"
+rope = "*"
 
 [dev-packages]
 pydocstyle = "*"
