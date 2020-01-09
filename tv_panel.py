@@ -72,10 +72,11 @@ def find_hsv_mask(frame, lower, upper):
 
     # mask = cv2.bitwise_not(mask)
 
-    result = cv2.bitwise_and(frame, frame, mask=mask)
-    result[mask == 0] = ([255, 255, 255])
+    # result = cv2.bitwise_and(frame, frame, mask=mask)
+    # result[mask == 0] = ([255, 255, 255])
 
-    return mask, result
+    # return mask, result
+    return mask
 
 
 def find_hsv_squares(mask, size_area=10000):
@@ -86,7 +87,7 @@ def find_hsv_squares(mask, size_area=10000):
         if cv2.contourArea(cnt) > size_area:
             rect = cv2.minAreaRect(cnt)
             box = cv2.boxPoints(rect)
-            box = np.int0(box)
+            box = np.int0(box)  # np.array(box, dtype="int")
             squares.append(box)
 
     return squares
@@ -99,7 +100,7 @@ def main():
     (lower, upper) = get_img_range_hsv('images/rolo-rosa.jpg')
 
     tv_border_color = (255, 0, 255)
-    obj_border_color = (0, 255, 0)
+    # obj_border_color = (0, 255, 0)
     tv_rect = None
     tv_thresh = None
     mask_tv = None
@@ -118,7 +119,8 @@ def main():
             if mask_obj is None:
                 mask_obj = np.zeros((h, w), np.uint8)
 
-            hsv_mask, result = find_hsv_mask(frame.copy(), lower, upper)
+            # hsv_mask, result = find_hsv_mask(frame.copy(), lower, upper)
+            hsv_mask = find_hsv_mask(frame.copy(), lower, upper)
 
             # get and draw tv rectangle
             if tv_rect is None:
@@ -143,9 +145,6 @@ def main():
                 final_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
             cv2.drawContours(frame, cnts, -1, tv_border_color, -1)
 
-            # view_image('hsv mask', hsv_mask)
-            # view_image('result', result)
-            # view_image('thresh', tv_thresh)
             view_image('mask-tv', mask_tv)
             view_image('mask-obj', mask_obj)
             view_image('Final-mask', final_mask)
