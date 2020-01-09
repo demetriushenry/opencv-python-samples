@@ -26,8 +26,8 @@ def get_img_range_hsv(img_hsv_path):
 
 
 def angle_cos(p0, p1, p2):
-    d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
-    return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1)*np.dot(d2, d2)))
+    d1, d2 = (p0 - p1).astype('float'), (p2 - p1).astype('float')
+    return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1) * np.dot(d2, d2)))
 
 
 def find_squares(frame, size_area=300000):
@@ -52,8 +52,8 @@ def find_squares(frame, size_area=300000):
             max_cos = np.max(
                 [angle_cos(
                     cnt[i],
-                    cnt[(i+1) % 4],
-                    cnt[(i+2) % 4]
+                    cnt[(i + 1) % 4],
+                    cnt[(i + 2) % 4]
                 ) for i in range(4)]
             )
             if max_cos < 1.0:
