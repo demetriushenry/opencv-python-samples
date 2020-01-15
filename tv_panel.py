@@ -80,17 +80,24 @@ def find_hsv_mask(frame, lower, upper):
 
 
 def find_hsv_squares(mask, size_area=10000):
-    squares = []
+    rotated_rects = []
+    bounding_rects = []
     cnts, _ = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     for cnt in cnts:
         if cv2.contourArea(cnt) > size_area:
+            # rotated boxes
             rect = cv2.minAreaRect(cnt)
             box = cv2.boxPoints(rect)
             box = np.int0(box)  # np.array(box, dtype="int")
-            squares.append(box)
+            rotated_rects.append(box)
+            # bounding boxes
+            (x, y, w, h) = cv2.boundingRect(cnt)
+            pt1 = (x, y)
+            pt2 = (x + w, y + h)
+            bounding_rects.append((pt1, pt2))
 
-    return squares
+    return rotated_rects, bounding_rects
 
 
 def main():
@@ -100,7 +107,7 @@ def main():
     (lower, upper) = get_img_range_hsv('images/rolo-rosa.jpg')
 
     tv_border_color = (255, 0, 255)
-    # obj_border_color = (0, 255, 0)
+    obj_border_color = (0, 255, 0)
     tv_rect = None
     tv_thresh = None
     mask_tv = None
@@ -131,11 +138,14 @@ def main():
                 cv2.drawContours(mask_tv, cnt, 0, (255, 255, 255), -1)
 
             # get and draw obj rectangle
-            obj_rect = find_hsv_squares(hsv_mask)
-            if obj_rect:
-                cnt = [obj_rect[0]]
+            obj_rotated_rect, obj_bounding_rect = find_hsv_squares(hsv_mask)
+            if obj_rotated_rect and obj_bounding_rect:
+                cnt = [obj_rotated_rect[0]]
                 # cv2.drawContours(frame, cnt, 0, obj_border_color, -1)
                 cv2.drawContours(mask_obj, cnt, 0, (255, 255, 255), -1)
+                # bounding rect
+                pts = obj_bounding_rect[0]
+                cv2.rectangle(frame, pts[0], pts[1], obj_border_color, 3)
 
             # final mask
             # final_mask_1 = mask_tv - mask_obj
@@ -145,6 +155,8 @@ def main():
                 final_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
             cv2.drawContours(frame, cnts, -1, tv_border_color, -1)
 
+            # all_mask = np.vstack((mask_tv, mask_obj, final_mask_1))
+            # view_image('all-mask', all_mask)
             view_image('mask-tv', mask_tv)
             view_image('mask-obj', mask_obj)
             view_image('Final-mask', final_mask)
