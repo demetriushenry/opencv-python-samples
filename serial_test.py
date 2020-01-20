@@ -12,7 +12,7 @@ def segments(data, size=16):
 def example_1():
     bytes_0to255 = bytes(bytearray(range(256)))
 
-    serial_port =  serial.serial_for_url(
+    serial_port = serial.serial_for_url(
         'loop://',
         timeout=0
     )

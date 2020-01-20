@@ -115,6 +115,13 @@ def main():
     h = None
     w = None
 
+    # for text on frame
+    pos = (150, 150)
+    font = cv2.FONT_HERSHEY_DUPLEX
+    fscale = 4
+    color = (0, 255, 255)
+    thick = 3
+
     while True:
         ret, frame = cap.read()
 
@@ -151,9 +158,13 @@ def main():
             # final_mask_1 = mask_tv - mask_obj
             final_mask = cv2.bitwise_and(mask_tv, mask_obj)
             final_mask = final_mask - mask_tv
+
             cnts, _ = cv2.findContours(
                 final_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
             cv2.drawContours(frame, cnts, -1, tv_border_color, -1)
+
+            # write text to masks
+            cv2.putText(frame, 'Result', pos, font, fscale, color, thick)
 
             # all_mask = np.vstack((mask_tv, mask_obj, final_mask_1))
             # view_image('all-mask', all_mask)
@@ -166,6 +177,9 @@ def main():
 
         if cv2.waitKey(22) & 0xFF == ord('q'):
             break
+
+    # show final mask
+    print('>>', np.nonzero(final_mask)[0].size)
 
     cap.release()
     cv2.destroyAllWindows()
