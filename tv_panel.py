@@ -155,7 +155,7 @@ def main():
                 cv2.rectangle(frame, pts[0], pts[1], obj_border_color, 3)
 
             # final mask
-            # final_mask_1 = mask_tv - mask_obj
+            final_mask_1 = mask_tv - mask_obj
             final_mask = cv2.bitwise_and(mask_tv, mask_obj)
             final_mask = final_mask - mask_tv
 
@@ -170,7 +170,7 @@ def main():
             # view_image('all-mask', all_mask)
             view_image('mask-tv', mask_tv)
             view_image('mask-obj', mask_obj)
-            view_image('Final-mask', final_mask)
+            view_image('Final-mask', final_mask_1)
             view_image('frame', frame)
         else:
             break

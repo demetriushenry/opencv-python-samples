@@ -14,7 +14,7 @@ dlib = "*"
 pytesseract = "*"
 psutil = "*"
 rope = "*"
-aioserial = "*"
+pyserial-asyncio = "*"
 
 [dev-packages]
 pydocstyle = "*"
