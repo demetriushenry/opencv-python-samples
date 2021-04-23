@@ -15,7 +15,7 @@ def angle_cos(p0, p1, p2):
 
 
 def main():
-    img = cv2.imread('images/panel-sheet.jpg')
+    img = cv2.imread('images/PanelInspection.png')
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # get threshold
@@ -53,9 +53,9 @@ def main():
     upper = np.array(list(color))
     mask = cv2.inRange(img, lower, upper)
 
+    view_image('Original', img)
     view_image('Thresh', threshold)
     view_image('Mask', mask)
-    view_image('Original', img)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()

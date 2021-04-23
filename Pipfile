@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 opencv-python = "*"
-"pyside2" = "*"
+"pyside6" = "*"
 pyserial = "*"
 imutils = "*"
 scikit-image = "*"
@@ -23,4 +23,4 @@ pylama = "*"
 jedi = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.9"
