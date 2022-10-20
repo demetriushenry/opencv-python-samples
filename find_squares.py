@@ -63,7 +63,7 @@ def find_squares(img):
 
 
 if __name__ == '__main__':
-    img = cv.imread('/home/demetrius/Pictures/rack-tv.jpg')
+    img = cv.imread('/images/tv_procel.jpg')
     squares = find_squares(img)
     # for square in squares:
     #     (x, y, w, h) = cv.boundingRect(square)

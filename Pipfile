@@ -15,6 +15,7 @@ pytesseract = "*"
 psutil = "*"
 rope = "*"
 pyserial-asyncio = "*"
+zxing = "*"
 
 [dev-packages]
 pydocstyle = "*"

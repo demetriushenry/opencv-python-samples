@@ -65,11 +65,11 @@ def change_gamma(frame, gamma=1.0):
 
 def main():
     print('OMP_THREAD_LIMIT:', os.environ['OMP_THREAD_LIMIT'])
-    path = "/home/demetrius/Pictures/roi"
+    path = "/home/demetriusv/Pictures"
     if os.path.isdir(path) == 1:
         with concurrent.futures.ProcessPoolExecutor() as executor:
             image_list = [
-                (path, random.randint(1, 7)) for path in glob.glob(path + "/*.jpg")
+                (path, random.randint(1, 7)) for path in glob.glob(path + "/*.png")
             ]
             for img_path, out_file in zip(image_list, executor.map(get_string, image_list)):
                 print(img_path[0].split("/")[-1], ',', out_file, ', processed')

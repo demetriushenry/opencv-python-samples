@@ -5,6 +5,6 @@
 		}
 	],
 	"settings": {
-		"python.pythonPath": "/home/demetriusv/.local/share/virtualenvs/opencv-python-samples-5Bbf1DkH/bin/python"
+		"python.defaultInterpreterPath": "/home/demetriusv/.local/share/virtualenvs/opencv-python-samples-5Bbf1DkH/bin/python"
 	}
 }

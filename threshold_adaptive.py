@@ -2,7 +2,6 @@ import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
 
-
 img = cv.imread('images/panel-sheet.jpg', 0)
 img = cv.medianBlur(img, 9)
 # img = cv.GaussianBlur(img, (9, 9), 15)

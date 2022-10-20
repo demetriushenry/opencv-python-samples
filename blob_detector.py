@@ -28,7 +28,7 @@ def main():
         img,
         keypoints,
         np.array([]),
-        (255, 0, 255),
+        (0, 255, 0),
         cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
     )
 
